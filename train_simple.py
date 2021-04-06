@@ -13,10 +13,13 @@ To use train.py, you will require to set the following parameters :
 
 import sys
 #modify the following line according to the locations where convnet2 is located
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
+# Se cambia el directorio al de Google Collab
+sys.path.append("/content/convnet2")
 import tensorflow as tf
 from models import simple
 from models import alexnet
+# Se importa resnet
+from models import resnet
 import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
@@ -80,6 +83,10 @@ if __name__ == '__main__' :
     if configuration.get_model_name() == 'SKETCH' :
         model = alexnet.AlexNetModel(configuration.get_number_of_classes())            
         process_fun = imgproc.process_sketch
+    # Se añade opción 'FASHION' para dataset Tarea 1
+    elif configuration.get_model_name() == 'FASHION':
+        model = simple.SimpleModel(configuration.get_number_of_classes())
+        process_fun = imgproc.process_image
     else:
         model = simple.SimpleModel(configuration.get_number_of_classes())
         process_fun = imgproc.process_mnist    
@@ -106,6 +113,8 @@ if __name__ == '__main__' :
                         validation_data=val_dataset,
                         validation_steps = configuration.get_validation_steps(),
                         callbacks=[model_checkpoint_callback])
+        # Se almacena el historial generado en el entrenamiento
+        np.save('my_history.npy', history.history)
                 
     elif pargs.mode == 'test' :
         model.evaluate(val_dataset,
